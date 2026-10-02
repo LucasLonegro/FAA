@@ -1,0 +1,116 @@
+# Sponsor -> entity rules. Tried in order; the first match wins.
+#
+# `pattern` is a regex searched in the *normalised* sponsor (see entities.normalize_sponsor): uppercase,
+# "&" and apostrophes dropped (AT&T -> ATT, PG&E -> PGE), other punctuation -> space, trailing filer codes
+# such as " - CS", "(MD)", ".NB", "-REGULATORY" stripped.
+# `domains` are owner e-mail domains from FCC ASR (the FAA API no longer returns sponsor e-mails); they are
+# matched exactly or as a parent domain and only used for ASR-owner attribution.
+# `entity: null` with `from_name: true` uses the sponsor's own base name (legal suffixes and roman numerals
+# dropped) as the entity, for long tails of utilities, agencies and small tower companies.
+# entity_type `consultant` marks filing agents and engineering firms: no entity, ASR owner used instead.
+#
+# Ownership notes (checked 2026-10):
+# - The Towers, LLC is a build-to-suit JV of Vertical Bridge REIT and Cellco (Verizon); kept separate from
+#   Vertical Bridge because it is a direct read on Verizon's new-site program.
+# - UScellular sold its wireless operations to T-Mobile (closed 2025-08-01) and renamed itself Array Digital
+#   Infrastructure (NYSE: AD), a tower company. Filings under either name map to Array.
+# - TowerCo sold its 2013 portfolio to SBA, then restarted as TowerCo 2013 LLC / TowerCo V-VI (still private).
+# - CTGI = Communications Tower Group I (ASR owner domain ctowergroup.com), private.
+# - Alltel Corporation is a Verizon subsidiary (ASR owner contact @verizonwireless.com).
+# - CCATT, CCTM, Pinnacle Towers and Global Signal are Crown Castle vehicles; "Crown Castle for AT&T/T-Mobile"
+#   filings are on carrier-leased towers Crown Castle manages.
+# - DISH Wireless is EchoStar (NASDAQ: SATS).
+
+rules:
+  # --- listed tower companies
+  - {pattern: '^AMERICAN TOWERS?\b|^ATC$|^ATC (TOWER SERVICES|SEQUOIA|OUTDOOR DAS)|^SPECTRASITE|^AMERICAN TOWER CORP', entity: American Tower, ticker: AMT, entity_type: tower_reit, domains: [americantower.com]}
+  - {pattern: '^CROWN CASTLE|^CCATT\b|^CCTM\d|^PINNACLE TOWERS|^GLOBAL SIGNAL|^CC HOLDINGS|^CROWN COMMUNICATION', entity: Crown Castle, ticker: CCI, entity_type: tower_reit, domains: [crowncastle.com]}
+  - {pattern: '^SBA\b', entity: SBA Communications, ticker: SBAC, entity_type: tower_reit, domains: [sbasite.com, sbacomm.com]}
+  - {pattern: '^US CELLULAR|^U S CELLULAR|^UNITED STATES CELLULAR|^USCC\b|^ARRAY DIGITAL', entity: Array Digital Infrastructure, ticker: AD, entity_type: towerco, domains: [arrayinc.com, uscellular.com]}
+
+  # --- national carriers
+  - {pattern: '^CELLCO\b|^VERIZON|^ALLTEL|^RURAL CELLULAR CORP|^GTE MOBILNET|^KENTUCKY RSA|^COMMNET CELLULAR|^SOUTHWESTCO WIRELESS|^GILA RIVER CELLULAR|\bD B A VERIZON', entity: Verizon, ticker: VZ, entity_type: carrier, domains: [verizonwireless.com, verizon.com, vzw.com]}
+  - {pattern: '^ATT\b|^AT AND T\b|^AT T\b|^NEW CINGULAR|^CINGULAR|^LOS ANGELES SMSA|^ALASCOM|^SBC\b', entity: AT&T, ticker: T, entity_type: carrier, domains: [att.com, attws.com, cingular.com]}
+  - {pattern: '^T ?MOBILE|^SPRINT\b|^SPRINTCOM|^NEXTEL|^OMNIPOINT|^POWERTEL|^VOICESTREAM|^METROPCS|^STC (ONE|TWO|FIVE|SIX)\b', entity: T-Mobile, ticker: TMUS, entity_type: carrier, domains: [t-mobile.com, sprint.com, sprintspectrum.com, nextel.com, sprintpcs.com]}
+  - {pattern: '^DISH\b|^ECHOSTAR|^BOOST MOBILE', entity: EchoStar (DISH), ticker: SATS, entity_type: carrier, domains: [dish.com, echostar.com, dishwireless.com]}
+
+  # --- other carriers
+  - {pattern: '^COMMNET\b|^ALASKA COMMUNICATIONS|^ATN INTERNATIONAL', entity: ATN International, ticker: ATNI, entity_type: carrier, domains: [commnetbroadband.com, acsalaska.com, atni.com]}
+  - {pattern: '^SHENANDOAH MOBILE|^SHENTEL|^SHENANDOAH TELECOMMUNICATIONS', entity: Shentel, ticker: SHEN, entity_type: carrier, domains: [shentel.com]}
+  - {pattern: '^GCI\b|ALASKA WIRELESS NETWORK', entity: GCI, ticker: null, entity_type: carrier, domains: [gci.com]}
+  - {pattern: '^SMITH BAGLEY|^CELLULAR ONE', entity: Smith Bagley (Cellular One), ticker: null, entity_type: carrier, domains: [sbi.cellularoneaz.net]}
+  - {pattern: '^CLOUD 1 SERVICES|^BUG TUSSEL', entity: Bug Tussel, ticker: null, entity_type: carrier, domains: [btussel.com, bugtusselwireless.com]}
+  - {pattern: '^EAST KENTUCKY NETWORK|^APPALACHIAN WIRELESS', entity: Appalachian Wireless, ticker: null, entity_type: carrier, domains: [ekn.com]}
+  - {pattern: '^NEX TECH WIRELESS|^STRATA NETWORKS|^HORRY TELEPHONE|^COMPORIUM|^TETON COMMUNICATIONS|^UNION TELEPHONE|^UNION WIRELESS|^CAROLINA WEST|^INLAND CELLULAR|^NSIGHT|^CELLCOM\b|^MOBI\b|^8 STAR ALASKA|^CT CUBE|^PIONEER TELEPHONE|^CHAT MOBILITY|^VIAERO', entity: null, from_name: true, ticker: null, entity_type: carrier}
+
+  - {pattern: 'NEXTLINK|^AMG TECHNOLOGY|^FREE BIRD|^SI WIRELESS|^VTX|^PIERCE BROADBAND|^COX COMMUNICATIONS|^FTC COMMUNICATIONS|^PINE TELEPHONE|^SAGEBRUSH CELLULAR|^NORTHWEST MISSOURI CELLULAR|^PEAKNET|^SPECTRUM (NORTHEAST|SOUTHEAST|SUNSHINE|MID)|^CHARTER COMMUNICATIONS|^STREAMLINE ISP|^SOUTH DAKOTA NETWORK|^PRT ?COMMUNICATIONS|^PRTC\b', entity: null, from_name: true, ticker: null, entity_type: carrier}
+
+  # --- private tower companies
+  - {pattern: '^THE TOWERS LLC$', entity: The Towers (Vertical Bridge/Verizon JV), ticker: null, entity_type: private_towerco}
+  - {pattern: '^VB\b|^VERTICAL BRIDGE|^ROWSTAR|^BRIDGER CELL|^VBHV\b|^BTS TOWERS LLC$', entity: Vertical Bridge, ticker: null, entity_type: private_towerco, domains: [verticalbridge.com]}
+  - {pattern: '^TILLMAN', entity: Tillman Infrastructure, ticker: null, entity_type: private_towerco, domains: [tillmaninfrastructure.com, tillmaninfrastructure.co]}
+  - {pattern: '^HARMONI|^PI TOWER DEVELOPMENT|^PARALLEL INFRASTRUCTURE', entity: Harmoni Towers, ticker: null, entity_type: private_towerco, domains: [harmonitowers.com, pitowers.com]}
+  - {pattern: '^SKYWAY TOWERS', entity: Skyway Towers, ticker: null, entity_type: private_towerco, domains: [skywaytowers.com]}
+  - {pattern: '^TOWER ?NORTH', entity: TowerNorth, ticker: null, entity_type: private_towerco, domains: [towernorth.com]}
+  - {pattern: '^PHOENIX TOWER', entity: Phoenix Tower International, ticker: null, entity_type: private_towerco, domains: [phoenixintnl.com, phoenixtower.com]}
+  - {pattern: '^DIAMOND (TOWERS|COMMUNICATIONS)|^CAPITAL TELECOM HOLDINGS', entity: Diamond Communications, ticker: null, entity_type: private_towerco, domains: [diamondcomm.com]}
+  - {pattern: '^TOWERCO\b|^TOWER CO \d|^GULFSOUTH TOWER', entity: TowerCo, ticker: null, entity_type: private_towerco, domains: [towerco.com]}
+  - {pattern: '^GST CAPITAL|^GULF SOUTH TOWERS', entity: Gulf South Towers, ticker: null, entity_type: private_towerco, domains: [gulfsouthtowers.com]}
+  - {pattern: '^HEMPHILL( LLC)?$|^GREAT PLAINS TOWERS', entity: Hemphill, ticker: null, entity_type: private_towerco, domains: [hemphill.com]}
+  - {pattern: '^CTGI\b|^COMMUNICATIONS TOWER GROUP', entity: Communications Tower Group, ticker: null, entity_type: private_towerco, domains: [ctowergroup.com]}
+  - {pattern: '^K2 TOWERS|^SWIF\b|^SWI FUNDS', entity: K2 Towers (Peppertree), ticker: null, entity_type: private_towerco, domains: [k2towers.com, peppertreecapital.com]}
+  - {pattern: '^OCTAGON TOWERS', entity: Octagon Towers, ticker: null, entity_type: private_towerco, domains: [octagontowersllc.com]}
+  - {pattern: '^HORVATH', entity: Horvath Communications, ticker: null, entity_type: private_towerco, domains: [horvathcommunications.com]}
+  - {pattern: '^EIP\b|^EVEREST INFRASTRUCTURE', entity: Everest Infrastructure Partners, ticker: null, entity_type: private_towerco, domains: [everestinfrastructure.com]}
+  - {pattern: '^CITYSWITCH', entity: CitySwitch, ticker: null, entity_type: private_towerco, domains: [cityswitch.com]}
+  - {pattern: '^BRANCH (COMMUNICATIONS|TOWERS)', entity: Branch Communications, ticker: null, entity_type: private_towerco, domains: [branchcomm.net]}
+  - {pattern: '^APC TOWERS|^TCO ATLAS', entity: APC Towers, ticker: null, entity_type: private_towerco, domains: [apctowers.com]}
+  - {pattern: '^Z ?ATLAS TOWER|^ATLAS TOWER', entity: Atlas Tower, ticker: null, entity_type: private_towerco, domains: [atlastowers.com]}
+  - {pattern: '^TARPON TOWERS|^RISING TIDE TOWERS', entity: Tarpon Towers, ticker: null, entity_type: private_towerco, domains: [tarpontowers.com]}
+  - {pattern: '^TOWER ?COM\b|^TCMC\b', entity: TowerCom, ticker: null, entity_type: private_towerco, domains: [towercomenterprises.com]}
+  - {pattern: '^TITAN TOWERS', entity: Titan Towers, ticker: null, entity_type: private_towerco, domains: [mytitantowers.com]}
+  - {pattern: '^TVT\b|^TOWER VENTURES', entity: Tower Ventures, ticker: null, entity_type: private_towerco, domains: [towerventures.com]}
+  - {pattern: '^CTI TOWERS', entity: CTI Towers, ticker: null, entity_type: private_towerco, domains: [ctitowers.com]}
+  - {pattern: '^BLUE SKY TOWERS', entity: Blue Sky Towers, ticker: null, entity_type: private_towerco, domains: [blueskytower.com]}
+  - {pattern: '^TAG TOWERS', entity: TAG Towers, ticker: null, entity_type: private_towerco, domains: [tagtowers.com]}
+  - {pattern: '^MOBILITIE', entity: Mobilitie, ticker: null, entity_type: private_towerco, domains: [mobilitie.com]}
+  - {pattern: '^BOLDYN|^SIGNAL POINT', entity: Boldyn Networks, ticker: null, entity_type: private_towerco, domains: [boldyn.com, sigpoint.com]}
+  - {pattern: '^UNITI TOWERS', entity: Uniti Towers, ticker: null, entity_type: private_towerco, domains: [unititowers.com]}
+  - {pattern: '^STRATCAP|^EVERLINK', entity: StratCap Wireless, ticker: null, entity_type: private_towerco, domains: [stratcap.com]}
+  - {pattern: '^INDUSTRIAL TOWER WEST', entity: Industrial Tower West (Viaero), ticker: null, entity_type: private_towerco, domains: [viaero.com]}
+  - {pattern: '^INDUSTRIAL TOWER', entity: Industrial Tower and Wireless, ticker: null, entity_type: private_towerco, domains: [itwllc.com, induscom.com]}
+  - {pattern: '^TOWER KING', entity: Tower King, ticker: null, entity_type: private_towerco, domains: [towerking.com]}
+  - {pattern: '^SUN STATE TOWERS', entity: Sun State Towers, ticker: null, entity_type: private_towerco, domains: [sunstatetower.com]}
+  - {pattern: '^SOUTHERN TOWERS', entity: Southern Towers, ticker: null, entity_type: private_towerco, domains: [southern-towers.com]}
+  - {pattern: '^NORTHSTAR TOWERS', entity: Northstar Towers, ticker: null, entity_type: private_towerco, domains: [nstartowers.com]}
+  - {pattern: '^VERTEX DEVELOPMENT', entity: Vertex Development, ticker: null, entity_type: private_towerco, domains: [vertexdevelopment.net]}
+  - {pattern: '^MILESTONE TOWER', entity: Milestone Towers, ticker: null, entity_type: private_towerco, domains: [milestonetowers.com]}
+  - {pattern: '^SQF\b|^TILSON INFRASTRUCTURE|^VERTA\b', entity: Tilson Infrastructure (SQF), ticker: null, entity_type: private_towerco, domains: [tilsoninfrastructure.com, vertawireless.com]}
+  - {pattern: '^1 SOURCE', entity: 1 Source Towers, ticker: null, entity_type: private_towerco, domains: [1swllc.com]}
+  - {pattern: '^GTC (UNO|TOWERS)', entity: GTC Towers, ticker: null, entity_type: private_towerco, domains: [gtctowers.com]}
+  - {pattern: '^PUBLIC SAFETY TOWER', entity: Public Safety Towers, ticker: null, entity_type: private_towerco, domains: [pstctowers.com]}
+  - {pattern: '^NEXTOWER', entity: NexTower, ticker: null, entity_type: private_towerco, domains: [nextower.net]}
+  - {pattern: '^ANTHEMNET', entity: Anthemnet, ticker: null, entity_type: private_towerco, domains: [anthemnet.com]}
+  - {pattern: '^SUBCARRIER COMMUNICATIONS', entity: Subcarrier Communications, ticker: null, entity_type: private_towerco, domains: [subcarrier.com]}
+  - {pattern: '^MUNICIPAL COMMUNICATIONS', entity: Municipal Communications, ticker: null, entity_type: private_towerco, domains: [municipalcom.com]}
+  - {pattern: '^WHITEROCK HOLDINGS', entity: WhiteRock Holdings, ticker: null, entity_type: private_towerco, domains: [whiterockholdingsllc.com]}
+  - {pattern: '^DRA PROPERTIES', entity: DRA Properties, ticker: null, entity_type: private_towerco, domains: [dolanrealtyadvisors.com]}
+  - {pattern: '^BOINGO', entity: Boingo Wireless, ticker: null, entity_type: private_towerco, domains: [boingo.com]}
+  - {pattern: '^WIRELESS EDGE', entity: Wireless Edge Towers, ticker: null, entity_type: private_towerco, domains: [wirelessedge.com]}
+  - {pattern: '^QMC TELECOM', entity: QMC Telecom, ticker: null, entity_type: private_towerco, domains: [qmctelecom.com]}
+  - {pattern: '^TIGR\b|^TOWERPOINT', entity: TowerPoint, ticker: null, entity_type: private_towerco, domains: [towerpoint.com]}
+  - {pattern: '^CELLTEX', entity: CellTex, ticker: null, entity_type: private_towerco, domains: [celltextowers.com]}
+  - {pattern: '^NETWORK TOWERS', entity: Network Towers, ticker: null, entity_type: private_towerco, domains: [nttowers.com]}
+
+  # --- filing agents, engineering and site-acquisition firms, and private individuals' agencies
+  - {pattern: 'PALM TECH|TOWER ENGINEERING PROFESSIONALS|FEDERAL AIRWAYS|AIRSPACE|MICHAEL BAKER|LEIDOS|^WESTWOOD\b|CENTERLINE COMMUNICATIONS|TILSON TECHNOLOGY|ARIUM NETWORKS|^ENTREX\b|^ASAC$|KIMLEY HORN|CONSULT|ENGINEERING\b|SURVEY|PERMITTING|SITE ACQUISITION|^WIRELESS EDGE\b|^TEP\b|^B T GROUP|^BT GROUP|^SAI COMMUNICATIONS|^NB C\b|^TECTONIC|^NATIONAL TOWER CONSULTANTS|^EBI\b|^TRILEAF|^CHAPPELL', entity: null, ticker: null, entity_type: consultant}
+
+  # --- long tails, named after the sponsor itself
+  - {pattern: 'RAILROAD|RAILWAY|^BNSF\b|^UNION PACIFIC|^NORFOLK SOUTHERN|^CSX\b|^AMTRAK', entity: null, from_name: true, ticker: null, entity_type: other, domains: [up.com, bnsf.com, nscorp.com, csx.com]}
+  - {pattern: 'ELECTRIC|ENERGY|\bPOWER\b|UTILIT|PUBLIC SERVICE\b|^COMED\b|EDISON|EVERGY|^PGE$|^PSEG\b|^PSE G\b|PEPCO|AMEREN|AVANGRID|XCEL|NIPSCO|^MLGW$|TENNESSEE VALLEY|COLORADO RIVER AUTHORITY|^ITC\b|CENTERPOINT|ENTERGY|^FELHC$|^PPL\b|^DUKE\b|DOMINION|EVERSOURCE|EXELON|^AEP\b|COOPERATIVE|\bGAS\b|PIPELINE|KINDER MORGAN|BONNEVILLE|TRANSMISSION|\bGRID\b|ORSTED|SOLAR', entity: null, from_name: true, ticker: null, entity_type: utility, domains: [aep.com, duke-energy.com, southernco.com, pge.com, entergy.com, xcelenergy.com, firstenergycorp.com, dominionenergy.com, kindermorgan.com, bpa.gov]}
+  - {pattern: '^FAA$|FEDERAL AVIATION|\bSTATE OF\b|^CITY OF|\bCITY OF\b|\bCOUNTY\b|\bDOT\b|DEPARTMENT|\bDEPT\b|AIR FORCE|\bARMY\b|\bNAVY\b|^DHS\b|\bCBP\b|EMERGENCY|SHERIFF|POLICE|PUBLIC SAFETY|AUTHORITY|AIRPORT|TRIBAL|\bNATION\b|COMMONWEALTH|UNIVERSITY|SCHOOL|DISTRICT|MUNICIPAL|VILLAGE OF|TOWN OF|TOWNSHIP|BOROUGH|\bNASA\b|NOAA|USACE|FEDERAL|MNDOT|ODOT|TXDOT|STATE PATROL|HIGHWAY|^US (ARMY|NAVY|AIR FORCE|COAST GUARD)|^UNITED STATES (ARMY|NAVY|AIR FORCE|COAST GUARD|DEPARTMENT)|^STATE\b|, STATE OF$|\bSTATE$|^(ALABAMA|ALASKA|ARIZONA|ARKANSAS|CALIFORNIA|COLORADO|CONNECTICUT|DELAWARE|FLORIDA|GEORGIA|HAWAII|IDAHO|ILLINOIS|INDIANA|IOWA|KANSAS|KENTUCKY|LOUISIANA|MAINE|MARYLAND|MASSACHUSETTS|MICHIGAN|MINNESOTA|MISSISSIPPI|MISSOURI|MONTANA|NEBRASKA|NEVADA|NEW HAMPSHIRE|NEW JERSEY|NEW MEXICO|NEW YORK|NORTH CAROLINA|NORTH DAKOTA|OHIO|OKLAHOMA|OREGON|PENNSYLVANIA|RHODE ISLAND|SOUTH CAROLINA|SOUTH DAKOTA|TENNESSEE|TEXAS|UTAH|VERMONT|VIRGINIA|WASHINGTON|WEST VIRGINIA|WISCONSIN|WYOMING) (STATE OF|DEPARTMENT|DEPT|DOT)\b', entity: null, from_name: true, ticker: null, entity_type: government}
+  - {pattern: 'BROADCAST|TELEVISION|\bTV\b|\bRADIO\b|\bMEDIA\b|NEXSTAR|SINCLAIR|TEGNA|IHEART|CUMULUS', entity: null, from_name: true, ticker: null, entity_type: other}
+  - {pattern: '\bTOWERS?\b|\bTOWER CO\b|INFRASTRUCTURE|\bSITES?\b LLC', entity: null, from_name: true, ticker: null, entity_type: private_towerco}
+
+# Domains that identify a type rather than a company (e-mail providers are ignored outright).
+ignored_domains: [gmail.com, aol.com, yahoo.com, hotmail.com, outlook.com, comcast.net, msn.com, att.net, sbcglobal.net, bellsouth.net, icloud.com, live.com, verizon.net, earthlink.net, charter.net, cox.net]

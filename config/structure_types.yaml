@@ -1,0 +1,36 @@
+# structureType -> category. Rules are tried in order and the first match wins; `types` are exact
+# (case-insensitive) values, `patterns` are regexes searched in the uppercased structureType.
+# Anything unmatched (including a missing structureType) is `other`.
+
+# Categories that make up the tower-construction signal. COWs are temporary and kept out of the signal;
+# antenna_mount covers existing non-tower structures that commonly host antennas.
+tower_signal: [tower, monopole]
+
+categories:
+  # Cranes first, so CRANE$WINDMILL stays a crane.
+  - category: crane
+    patterns: ['^CRANE', '^CONSTRUCTION\$']
+  - category: wind
+    patterns: ['WIND', '^TOWER\$MET$', '^TOWER\$ADLS$']
+  - category: tower
+    types: ['TOWER', 'TOWER$ANTENNA']
+  - category: monopole
+    types: ['POLE$MONO']
+  - category: cow
+    types: ['TOWER$COW']
+  - category: antenna_mount
+    types: ['WATER_TOWER', 'TANK', 'WATER_SYSTEM', 'STACK', 'GRAIN_ELEVATOR', 'GRAIN_ELEVATOR$SILO', 'POLE$FLAG']
+  - category: rig
+    patterns: ['^RIG']
+  - category: transmission
+    types: ['POLE$UTILITY', 'CATENARY']
+    patterns: ['^TRANSMISSION_LINE']
+  - category: lighting
+    types: ['POLE$LIGHTING', 'POLE$HIGH_MAST', 'POLE$PARKING']
+  - category: solar
+    types: ['ELECTRICAL_SYSTEM$SOLAR_PANEL', 'TOWER$SOLAR']
+  - category: building
+    patterns: ['^BUILDING', '^HANGAR', '^TERMINAL', '^STADIUM']
+  # NRA airport-project types look like "RUNWAY - Construction", "FORM 7480 - New".
+  - category: airport
+    patterns: ['^(RUNWAY|TAXIWAYS|APRON|HELIPORT|PLANNING|FORM 7480|CONSTR\. SAFETY PLAN|EQUIPMENT|LAND|GROUND TRANSPORTATION|ADVANCED AIR MOBILITY) ']

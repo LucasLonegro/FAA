@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Derived; rebuild with `python -m faa_oe rebuild`, then `enrich`/`features`/`backtest`
+data/parquet/
+data/faa.duckdb
+data/faa.duckdb.wal
+data/logs/
+*.tmp.parquet
