@@ -24,7 +24,7 @@
 rules:
   # --- listed tower companies
   - {pattern: '^AMERICAN TOWERS?\b|^ATC$|^ATC (TOWER SERVICES|SEQUOIA|OUTDOOR DAS)|^SPECTRASITE|^AMERICAN TOWER CORP', entity: American Tower, ticker: AMT, entity_type: tower_reit, domains: [americantower.com]}
-  - {pattern: '^CROWN CASTLE|^CCATT\b|^CCTM\d|^PINNACLE TOWERS|^GLOBAL SIGNAL|^CC HOLDINGS|^CROWN COMMUNICATION', entity: Crown Castle, ticker: CCI, entity_type: tower_reit, domains: [crowncastle.com]}
+  - {pattern: '^CROWN CASTLE|^CCATT\b|^CCTM(\d|O\b)|^PINNACLE TOWERS|^GLOBAL SIGNAL|^CC HOLDINGS|^CROWN COMMUNICATION', entity: Crown Castle, ticker: CCI, entity_type: tower_reit, domains: [crowncastle.com]}
   - {pattern: '^SBA\b', entity: SBA Communications, ticker: SBAC, entity_type: tower_reit, domains: [sbasite.com, sbacomm.com]}
   - {pattern: '^US CELLULAR|^U S CELLULAR|^UNITED STATES CELLULAR|^USCC\b|^ARRAY DIGITAL', entity: Array Digital Infrastructure, ticker: AD, entity_type: towerco, domains: [arrayinc.com, uscellular.com]}
 
